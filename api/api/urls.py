@@ -18,9 +18,11 @@ from django.urls import path
 from django.urls import include
 from rest_framework import routers
 from worker.views import WorkerNodeViewSet
+from deployment.views import ExecutionEnvironmentViewSet
 
 router = routers.DefaultRouter()
 router.register(r'workernodes', WorkerNodeViewSet)
+router.register(r'executionenvironments', ExecutionEnvironmentViewSet)
 
 urlpatterns = [
 	path('', include(router.urls)),

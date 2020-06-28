@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'deployment',
 
     'rest_framework',
+    'django_filters'
 ]
 
 MIDDLEWARE = [
@@ -129,4 +130,6 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [],
     'DEFAULT_PERMISSION_CLASSES': [],
     'UNAUTHENTICATED_USER': None,
+    # Enable filtering by url queries 
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }

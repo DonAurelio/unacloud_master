@@ -7,5 +7,3 @@ from worker.models import WorkerNode
 class WorkerNodeViewSet(viewsets.ModelViewSet):
     queryset = WorkerNode.objects.all()
     serializer_class = WorkerNodeSerializer
-    # permission_classes = []
-
