@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 import logging
+import requests
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -14,77 +15,85 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-class Schedulerd(object):
-    """docstring for Deployd"""
-
-    def __init__(self,api_base_url):
-        self._base_url = api_base_url
+API_BASE_URL = 'localhost:8081'
 
 
-    def _get_available_nodes(self):
+def get_available_workers():
+    endpoint = '/worker/workers/'
+    url = API_BASE_URL + endpoint
+    nodes = None
 
-        url = self._base_url + '/workernodes/'
-        nodes = None
+    logger.info("Getting available nodes from '%s'" % url)
+    response = requests.get(url)
 
-        logger.info("Getting available nodes from '%s'" % url)
-        response = requests.get(url)
+    # Check if something when wrong
+    response.raise_for_status()
 
-        # Check if something when wrong
-        response.raise_for_status()
+    nodes = response.json()
+    logger.info("Number of available nodes retrieved '%s'" % len(nodes))
 
-        nodes = response.json()
-        logger.info("Number of available nodes retrieved '%s'" % len(nodes))
+    return nodes
 
-        return nodes
 
-    def _get_peding_deployments(self):
-        url = self._base_url + '/executionenvironments/?status=Pending' 
-        deployments = None
+def get_peding_environments():
+    endpoint = '/environment/environments/'
+    query = '?deployment__status=Pending'
+    url = API_BASE_URL + endpoint + query
 
-        logger.info("Getting pending deployments from '%s'" % url)
-        response = requests.get(url)
+    environments = None
 
-        # Check if something when wrong
-        response.raise_for_status()
-        
-        deployments = response.json()
-        logger.info(
-            "Number of pending deployments retrieved '%s'" % len(deployments)
+    logger.info("Getting pending environments from '%s'" % url)
+    response = requests.get(url)
+
+    # Check if something when wrong
+    response.raise_for_status()
+    
+    environments = response.json()
+    logger.info(
+        "Number of pending environments retrieved '%s'" % len(environments)
+    )
+
+    return environments
+
+
+def fits_environment_into_worker(environment,worker):
+    required_cpus = environment.get('cpus')
+    required_memory = environment.get('memory')
+
+    available_cpus = worker.get('cpus')
+    available_memory = worker.get('memory')
+
+    fits_cpu = required_cpus < available_cpus
+    fits_memory = required_memory < available_memory
+
+    return fits_cpu and fits_memory
+
+
+def get_first_fit(environment,workers):
+
+    # sort by cpu capacity, more cpus avaiable first
+    workers = sorted(
+        workers, key=lambda k: k['available_cpus'], reverse=True
+    )
+
+    index = 0 
+    selected_worker = None
+    while index < len(workers):
+        current_worker = workers[index]
+        condition = fits_environment_into_worker(
+            environment,current_worker
         )
 
-        return deployments
+        if condition:
+            selected_worker = current_worker
+            index = len(workers)
+        else:
+            index += 1
 
-    def _fit_deployment_into_node(self,deployment,node):
-        required_cpus = deployment.get('cpus')
-        required_memory = deployment.get('memory')
-
-        available_cpus = node.get('cpus')
-        available_memory = node.get('memory')
-
-        fits_cpu = required_cpus < available_cpus
-        fits_memory = required_memory < available_memory
-
-        return =  fits_cpu and fits_memory
-
-    def _asign_node_to_deployment(self,node,deployment):
-
-    def _schedule_pending_deployment(self,deployment,nodes):
-
-        # sort by cpu capacity, more cpus avaiable first
-        sorted_nodes = sorted(
-            data, key=lambda k: k['available_cpus'], reverse=True
-        )
-
-        for node in sorted_nodes:
-            if self._fit_deployment_into_node(deployment,node):
+    return selected_worker
 
 
-    def schedule_pending_desployments(self):
-        deployments = self._get_peding_deployments()
-        for deployment in deployments:
-            nodes = self._get_available_nodes()
-            self._schedule_pending_deployment(deployment,nodes)
-
-
-    def run(self):
-        self._deploy_manifests()
+def get_report_scheduling_decision(environment,worker):
+    # Change execution environment and deployemnt to scheduled
+    # write some info
+    pass

@@ -45,7 +45,7 @@ class Environment(models.Model):
     worker = models.ForeignKey(Worker,on_delete=models.CASCADE,null=True,blank=True)
 
 
-class EnvironmentDeployment(models.Model):
+class Deployment(models.Model):
 
     PENDING = 'Pending'
     SCHEDULED = 'Scheduled'

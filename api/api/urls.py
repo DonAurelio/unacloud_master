@@ -19,13 +19,13 @@ from django.urls import include
 from rest_framework import routers
 from worker.views import WorkerViewSet
 from environment.views import EnvironmentViewSet
-from environment.views import EnvironmentDeploymentViewSet
+from environment.views import DeploymentViewSet
 
 
 router = routers.DefaultRouter()
 router.register(r'worker/workers', WorkerViewSet)
 router.register(r'environment/environments', EnvironmentViewSet)
-router.register(r'environment/deployments', EnvironmentDeploymentViewSet)
+router.register(r'environment/deployments', DeploymentViewSet)
 
 urlpatterns = [
     path('', admin.site.urls),

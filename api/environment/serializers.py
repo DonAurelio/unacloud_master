@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from environment.models import Environment
-
+from environment.models import Deployment
 
 class EnvironmentSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -9,15 +9,14 @@ class EnvironmentSerializer(serializers.HyperlinkedModelSerializer):
         model = Environment
         fields = [
             'id','name','provider','address',
-            'cores','memory','status','last_report_date',
-            'deployment','worker'
+            'cores','memory','status','last_report_date','worker'
         ]
 
 
-class EnvironmentDeploymentSerializer(serializers.HyperlinkedModelSerializer):
+class DeploymentSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
-        model = Environment
+        model = Deployment
         fields = [
             'id','environment','status','detail',
             'created_at'
