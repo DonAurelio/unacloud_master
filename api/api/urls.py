@@ -17,15 +17,18 @@ from django.contrib import admin
 from django.urls import path
 from django.urls import include
 from rest_framework import routers
-from worker.views import WorkerNodeViewSet
-from deployment.views import ExecutionEnvironmentViewSet
+from worker.views import WorkerViewSet
+from environment.views import EnvironmentViewSet
+from environment.views import EnvironmentDeploymentViewSet
+
 
 router = routers.DefaultRouter()
-router.register(r'workernodes', WorkerNodeViewSet)
-router.register(r'executionenvironments', ExecutionEnvironmentViewSet)
+router.register(r'worker/workers', WorkerViewSet)
+router.register(r'environment/environments', EnvironmentViewSet)
+router.register(r'environment/deployments', EnvironmentDeploymentViewSet)
 
 urlpatterns = [
-	path('', include(router.urls)),
-    path('admin/', admin.site.urls),
+    path('', admin.site.urls),
+	path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls'))
 ]

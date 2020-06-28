@@ -25,7 +25,7 @@ SECRET_KEY = 'cad=(3==(j+5sz=l7mwrj1ohx)t=d6zp&s86@-t*sa+gxtrkfr'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -38,8 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'environment',
     'worker',
-    'deployment',
 
     'rest_framework',
     'django_filters'

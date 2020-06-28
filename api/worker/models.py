@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class WorkerNode(models.Model):
+class Worker(models.Model):
 
     address = models.GenericIPAddressField(protocol='IPv4',unique=True)
     cpus = models.PositiveSmallIntegerField()

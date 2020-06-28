@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from worker.models import WorkerNode
+from worker.models import Worker
 
-class WorkerNodeSerializer(serializers.HyperlinkedModelSerializer):
+class WorkerSerializer(serializers.HyperlinkedModelSerializer):
 
     # assosiated with get_available_cores
     available_cpus = serializers.SerializerMethodField()
@@ -9,7 +9,7 @@ class WorkerNodeSerializer(serializers.HyperlinkedModelSerializer):
     get_available_memory = serializers.SerializerMethodField()
 
     class Meta:
-        model = WorkerNode
+        model = Worker
         fields = [
             'id','address',
             'cpus', 'cpus_reserved','available_cpus',

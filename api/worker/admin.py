@@ -1,8 +1,8 @@
 from django.contrib import admin
-from worker.models import WorkerNode
+from worker.models import Worker
 
 # Register your models here.
-class WorkerNodeAdmin(admin.ModelAdmin):
+class WorkerAdmin(admin.ModelAdmin):
     fields = (
         'address','cpus','cpus_reserved',
         'memory','memory_reserved',
@@ -14,4 +14,4 @@ class WorkerNodeAdmin(admin.ModelAdmin):
 		'last_health_report_date'
     )
 
-admin.site.register(WorkerNode, WorkerNodeAdmin)
+admin.site.register(Worker, WorkerAdmin)

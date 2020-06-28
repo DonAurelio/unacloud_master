@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from rest_framework import viewsets
-from worker.serializers import WorkerNodeSerializer
-from worker.models import WorkerNode
+from worker.serializers import WorkerSerializer
+from worker.models import Worker
 
 # ViewSets define the view behavior.
-class WorkerNodeViewSet(viewsets.ModelViewSet):
-    queryset = WorkerNode.objects.all()
-    serializer_class = WorkerNodeSerializer
+class WorkerViewSet(viewsets.ModelViewSet):
+    queryset = Worker.objects.all()
+    serializer_class = WorkerSerializer
