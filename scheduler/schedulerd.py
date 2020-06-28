@@ -2,6 +2,7 @@
 
 import logging
 import requests
+import time
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -15,24 +16,25 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-API_BASE_URL = 'localhost:8081'
+# Base API url without the ending slash
+API_BASE_URL = 'http://localhost:8081/api'
 
 
 def get_available_workers():
     endpoint = '/worker/workers/'
     url = API_BASE_URL + endpoint
-    nodes = None
+    workers = None
 
-    logger.info("Getting available nodes from '%s'" % url)
+    logger.info("Getting available workers from '%s'" % url)
     response = requests.get(url)
 
     # Check if something when wrong
     response.raise_for_status()
 
-    nodes = response.json()
-    logger.info("Number of available nodes retrieved '%s'" % len(nodes))
+    workers = response.json()
+    logger.info("Number of available workers retrieved '%s'" % len(workers))
 
-    return nodes
+    return workers
 
 
 def get_peding_environments():
@@ -93,7 +95,64 @@ def get_first_fit(environment,workers):
     return selected_worker
 
 
-def get_report_scheduling_decision(environment,worker):
-    # Change execution environment and deployemnt to scheduled
-    # write some info
-    pass
+def report_scheduling_decision(environment,worker):
+
+    if worker is None:
+        logger.warning(
+            "No nodes available for environment (id='%s',name='%s')",
+            environment.get('id'),environment.get('name')
+        )
+        # Change deployment status to scheduled
+        url = environment.get('deployment')
+
+        data = {
+            'status': 'Scheduled',
+            'details': 'No nodes aviable for this environment !!'
+        }
+        response = requests.patch(url,data=data)
+
+        response.raise_for_status()   
+
+    else:
+        # Assinng worker to environment
+        url = environment.get('url')
+
+        data = {
+            'worker': worker.get('url')
+        }
+        response = requests.patch(url,data=data)
+
+        response.raise_for_status()
+
+        # Change deployment status to scheduled
+        url = environment.get('deployment')
+
+        data = {
+            'status': 'Scheduled'
+        }
+        response = requests.patch(url,data=data)
+
+        response.raise_for_status()
+
+        logger.info(
+            "Environment (id='%s',name='%s') was assigned to node '%s'",
+            environment.get('id'),environment.get('name'),worker.get('id')
+        )
+
+
+def schedule():
+    logger.info("Scheduling...")
+    environments = get_peding_environments()
+    for environment in environments:
+        workers = get_available_workers()
+        worker = get_first_fit(environment,workers)
+        report_scheduling_decision(environment,worker)
+
+    logger.info("End scheduling...")
+
+
+if __name__ == '__main__':
+    logger.info("Scheduler started !!")
+    while True:
+        time.sleep(60)
+        schedule()

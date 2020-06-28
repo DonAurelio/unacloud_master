@@ -17,19 +17,8 @@ class EnvironmentViewSet(viewsets.ModelViewSet):
     filterset_fields = ['status','deployment__status','worker']
 
 
-    def partial_update(self, request, pk=None):
-        """Handless updating prt of an object."""
-
-        return Response({'http_method':'PATH'})
-
 class DeploymentViewSet(viewsets.ModelViewSet):
     queryset = Deployment.objects.all()
     serializer_class = DeploymentSerializer
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = ['status']
-
-
-    def partial_update(self, request, pk=None):
-        """Handless updating prt of an object."""
-
-        return Response({'http_method':'PATH'})

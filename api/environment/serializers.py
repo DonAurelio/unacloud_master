@@ -8,7 +8,7 @@ class EnvironmentSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Environment
         fields = [
-            'id','name','provider','address',
+            'id','url','name','provider','address','deployment',
             'cores','memory','status','last_report_date','worker'
         ]
 
@@ -18,7 +18,7 @@ class DeploymentSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Deployment
         fields = [
-            'id','environment','status','detail',
+            'id','url','environment','status','detail',
             'created_at'
         ]
 
