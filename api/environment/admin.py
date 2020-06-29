@@ -22,7 +22,7 @@ admin.site.register(Environment, EnvironmentAdmin)
 class DeploymentAdmin(admin.ModelAdmin):
     fields = (
         'environment','status',
-        'detail','created_at'
+        'detail'
     )
 
     list_display = (

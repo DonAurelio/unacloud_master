@@ -33,6 +33,8 @@ class Environment(models.Model):
     provider = models.CharField(max_length=50,choices=PROVIDER_CHOICES)
     # IPAddress assin
     address = models.GenericIPAddressField(protocol='IPv4',unique=True,null=True,blank=True)
+    # Connection port
+    ssh_port = models.PositiveSmallIntegerField(null=True,blank=True)
     # Number of cores for the environment
     cores = models.PositiveSmallIntegerField()
     # Memory in MB
@@ -40,7 +42,7 @@ class Environment(models.Model):
     # Environment status
     status = models.CharField(max_length=50,choices=STATUS_CHOICES,null=True,blank=True)
     # Environmet last status report
-    last_report_date = models.DateTimeField(null=True)
+    last_report_date = models.DateTimeField(null=True,blank=True)
     # Worker running the environment
     worker = models.ForeignKey(Worker,on_delete=models.CASCADE,null=True,blank=True)
 
