@@ -19,6 +19,9 @@ logger.addHandler(ch)
 # Base API url without the ending slash
 API_BASE_URL = 'http://localhost:8081/api'
 
+# Wait time for next iteration (seconds)
+SLEEP_SECONDS = 20
+
 
 def get_available_workers():
     endpoint = '/worker/workers/'
@@ -154,5 +157,10 @@ def schedule():
 if __name__ == '__main__':
     logger.info("Scheduler started !!")
     while True:
-        time.sleep(60)
-        schedule()
+        try: 
+            time.sleep(SLEEP_SECONDS)
+            schedule()
+        except requests.exceptions.ConnectionError as e:
+            logger.exception(e)
+        except Exception as e:
+            logger.exception(e)

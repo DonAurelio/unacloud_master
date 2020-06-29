@@ -90,3 +90,5 @@ if __name__ == '__main__':
             dispatch()
         except requests.exceptions.ConnectionError as e:
             logger.exception(e)
+        except Exception as e:
+            logger.exception(e)
