@@ -49,6 +49,7 @@ class Deployment(models.Model):
 
     PENDING = 'Pending'
     SCHEDULED = 'Scheduled'
+    DISPATCHED = 'Dispatched'
     RUNNING = 'Running'
     SUCCESS = 'Success'
     FAILED = 'Failed'
@@ -57,6 +58,7 @@ class Deployment(models.Model):
     STATUS_CHOICES = (
         (PENDING,'Pending'),
         (SCHEDULED,'Scheduled'),
+        (DISPATCHED,'Dispatched'),
         (RUNNING, 'Running'),
         (SUCCESS, 'Success'),
         (FAILED, 'Failed'),
