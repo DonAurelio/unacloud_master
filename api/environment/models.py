@@ -10,6 +10,7 @@ class Environment(models.Model):
     RUNNING = 'Running'
     REBOOTING = 'Rebooting'
     DELETED = 'Deleted'
+    NO_DEPLOYED = 'No Deployed'
     UNKNOWN = 'Unknown'
 
     STATUS_CHOICES = (
@@ -17,6 +18,7 @@ class Environment(models.Model):
         (RUNNING,'Running'),
         (REBOOTING, 'Rebooting'),
         (DELETED, 'Deleted'),
+        (NO_DEPLOYED,'No Deployed'),
         (UNKNOWN, 'Unknown'),
     )
 

@@ -5,6 +5,7 @@ from environment.models import Deployment
 
 class EnvironmentAdmin(admin.ModelAdmin):
     fields = (
+        'name',
         'provider','address',
         'cores','memory','status',
         'last_report_date','worker'
@@ -21,8 +22,7 @@ admin.site.register(Environment, EnvironmentAdmin)
 
 class DeploymentAdmin(admin.ModelAdmin):
     fields = (
-        'environment','status',
-        'detail'
+       'environment','status','detail'
     )
 
     list_display = (

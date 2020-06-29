@@ -20,7 +20,7 @@ logger.addHandler(ch)
 API_SERVER_BASE_URL = 'http://localhost:8081/api'
 
 # Worker API port
-API_WORKER_URL_FORMAT = 'http://{address}:8082'
+API_WORKER_URL_FORMAT = 'http://{address}:8082/{endpoint}/'
 
 # Wait time for next iteration (seconds)
 SLEEP_SECONDS = 5
@@ -57,13 +57,15 @@ def send_environment_data(environment):
 
     # Get worker API URL
     url = API_WORKER_URL_FORMAT.format(
-        address=worker.get('address')
+        address=worker.get('address'),
+        endpoint='environments'
+
     )
 
     try:
 
-        # Send enviroment data to worker
-        response = requests.post(url,data=environment)
+        # Send enviroment data to worker (flask receives data when json is used)
+        response = requests.post(url,json=environment)
         response.raise_for_status()
 
         # Resport to api serve that the deployemnt 
@@ -91,6 +93,8 @@ def send_environment_data(environment):
                 worker.get('address')
             )
         }
+
+        logger.exception(e)
 
         response = requests.patch(deployment_url,data=deployment)
         response.raise_for_status()
