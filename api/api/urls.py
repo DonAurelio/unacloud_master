@@ -20,7 +20,10 @@ from rest_framework import routers
 from worker.views import WorkerViewSet
 from environment.views import EnvironmentViewSet
 from environment.views import DeploymentViewSet
+from environment.views import ActionViewSet
 from environment.views import EnviromentDeploymentStatusUpdate
+from environment.views import ActionDeploymentStatusUpdate
+
 
 
 # Register here only viewsets, APIView and other go down in urlpatterns
@@ -28,11 +31,13 @@ router = routers.DefaultRouter()
 router.register(r'worker/workers', WorkerViewSet)
 router.register(r'environment/environments', EnvironmentViewSet)
 router.register(r'environment/deployments', DeploymentViewSet)
+router.register(r'environment/actions', ActionViewSet)
 
 
 urlpatterns = [
     path('', admin.site.urls),
 	path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls')),
-    path('api/environment/deployment/status_update/',EnviromentDeploymentStatusUpdate.as_view())
+    path('api/environment/deployment/status_update/',EnviromentDeploymentStatusUpdate.as_view()),
+    path('api/environment/action/status_update/',ActionDeploymentStatusUpdate.as_view())
 ]

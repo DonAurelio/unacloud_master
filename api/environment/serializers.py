@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from environment.models import Environment
 from environment.models import Deployment
+from environment.models import Action
 
 class EnvironmentSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -22,3 +23,12 @@ class DeploymentSerializer(serializers.HyperlinkedModelSerializer):
             'created_at'
         ]
 
+
+class ActionSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model = Action
+        fields = [
+            'id','url','action','environment','status','detail',
+            'created_at'
+        ]

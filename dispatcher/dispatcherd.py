@@ -4,7 +4,7 @@ import logging
 import requests
 import time
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('dispatcherd')
 logger.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter('%(asctime)s : %(name)s : %(levelname)s : %(message)s')
@@ -46,6 +46,23 @@ def get_scheduled_environments():
 
     return environments
 
+def get_scheduled_actions():
+    endpoint = '/environment/actions/'
+    query = '?environment__deployment__status=Success&status=Scheduled'
+    url = API_SERVER_BASE_URL + endpoint + query
+
+    logger.info("Getting scheduled actions from '%s'" % url)
+    response = requests.get(url)
+
+    # Check if something when wrong
+    response.raise_for_status()
+    
+    actions = response.json()
+    logger.info(
+        "Number of scheduled actions retrieved '%s'" % len(actions)
+    )
+
+    return actions
 
 def send_environment_data(environment):
     
@@ -99,6 +116,70 @@ def send_environment_data(environment):
         response = requests.patch(deployment_url,data=deployment)
         response.raise_for_status()
 
+def send_action_data(action):
+    
+    # Get environment
+    environment_url = action.get('environment')
+    response = requests.get(environment_url)
+    response.raise_for_status()
+    environment = response.json()
+
+    # Get worker
+    worker_url = environment.get('worker')
+    response = requests.get(worker_url)
+    response.raise_for_status()
+    worker = response.json()
+
+    # Get worker API URL
+    url = API_WORKER_URL_FORMAT.format(
+        address=worker.get('address'),
+        endpoint='actions'
+
+    )
+
+    try:
+        data = {
+            'action_id': action.get('id'),
+            'environment_id': environment.get('id'),
+            'provider': environment.get('provider'),
+            'action': action.get('action')
+        }
+
+        # Send enviroment data to worker (flask receives data when json is used)
+        response = requests.post(url,json=data)
+        response.raise_for_status()
+
+        # Resport to api serve that the deployemnt 
+        # was dispatched
+        action_url = action.get('url')
+        action = {
+            'status': 'Dispatched',
+            'detail': 'successfully dispatched'
+        }
+
+        response = requests.patch(action_url,data=action)
+        response.raise_for_status()
+    except Exception as e:
+        logger.error(
+            "Worker '%s' not available, so action '%s' not dispatched",
+            worker.get('address'),
+            action.get('id')
+        )
+        # Resport to api serve that the deployemnt 
+        # was dispatched
+        action_url = action.get('url')
+        action = {
+            'status': 'Failed',
+            'detail': "Worker '%s' not available, so action not dispatched" % (
+                worker.get('address')
+            )
+        }
+
+        logger.exception(e)
+
+        response = requests.patch(action_url,data=action)
+        response.raise_for_status()
+
 def dispatch():
     logger.info("Dispactchig ...")
 
@@ -113,8 +194,19 @@ def dispatch():
             except Exception as e:
                 logger.exception(e)
 
+        actions = get_scheduled_actions()
+        for action in actions:
+
+            try:
+                send_action_data(action)
+            except requests.exceptions.ConnectionError as e:
+                logger.exception(e)
+            except Exception as e:
+                logger.exception(e)
+
     except Exception as e:
         logger.warning("API SERVER no available on '%s'",API_SERVER_BASE_URL)
+        logger.exception(e)
 
     logger.info("End dispatch...")
 

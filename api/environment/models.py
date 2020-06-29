@@ -34,7 +34,7 @@ class Environment(models.Model):
     # Hypervisor
     provider = models.CharField(max_length=50,choices=PROVIDER_CHOICES)
     # IPAddress assin
-    address = models.GenericIPAddressField(protocol='IPv4',unique=True,null=True,blank=True)
+    address = models.GenericIPAddressField(protocol='IPv4',null=True,blank=True)
     # Connection port
     ssh_port = models.PositiveSmallIntegerField(null=True,blank=True)
     # Number of cores for the environment
@@ -75,3 +75,39 @@ class Deployment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True,null=True)
 
 
+class Action(models.Model):
+
+    # Action deployment status
+    SCHEDULED = 'Scheduled'
+    DISPATCHED = 'Dispatched'
+    RUNNING = 'Running'
+    SUCCESS = 'Success'
+    FAILED = 'Failed'
+    UNKNOWN = 'Unknown'
+
+    STATUS_CHOICES = (
+        (SCHEDULED,'Scheduled'),
+        (DISPATCHED,'Dispatched'),
+        (RUNNING, 'Running'),
+        (SUCCESS, 'Success'),
+        (FAILED, 'Failed'),
+        (UNKNOWN, 'Unknown')
+    )
+
+    START = 'start'
+    STOP = 'stop'
+    RESET = 'reset'
+    DELETE = 'delete'
+
+    ACTION_CHOICES = (
+        (START, 'start'),
+        (STOP, 'stop'),
+        (RESET, 'reset'),
+        (DELETE, 'delete')
+    )
+
+    action = models.CharField(max_length=50,choices=ACTION_CHOICES)
+    environment = models.OneToOneField(Environment,on_delete=models.CASCADE)
+    status = models.CharField(max_length=50,choices=STATUS_CHOICES,default=SCHEDULED)
+    detail = models.TextField(null=True,blank=True)
+    created_at = models.DateTimeField(auto_now_add=True,null=True)
