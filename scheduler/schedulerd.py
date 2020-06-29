@@ -20,7 +20,7 @@ logger.addHandler(ch)
 API_BASE_URL = 'http://localhost:8081/api'
 
 # Wait time for next iteration (seconds)
-SLEEP_SECONDS = 20
+SLEEP_SECONDS = 5
 
 
 def get_available_workers():
@@ -109,7 +109,7 @@ def report_scheduling_decision(environment,worker):
         url = environment.get('deployment')
 
         data = {
-            'status': 'Scheduled',
+            'status': 'Pending',
             'details': 'No nodes aviable for this environment !!'
         }
         response = requests.patch(url,data=data)
@@ -147,9 +147,15 @@ def schedule():
     logger.info("Scheduling...")
     environments = get_peding_environments()
     for environment in environments:
-        workers = get_available_workers()
-        worker = get_first_fit(environment,workers)
-        report_scheduling_decision(environment,worker)
+        try: 
+            workers = get_available_workers()
+            worker = get_first_fit(environment,workers)
+            report_scheduling_decision(environment,worker)
+        except requests.exceptions.ConnectionError as e:
+            logger.exception(e)
+        except Exception as e:
+            logger.exception(e)
+
 
     logger.info("End scheduling...")
 
@@ -157,10 +163,5 @@ def schedule():
 if __name__ == '__main__':
     logger.info("Scheduler started !!")
     while True:
-        try: 
-            time.sleep(SLEEP_SECONDS)
-            schedule()
-        except requests.exceptions.ConnectionError as e:
-            logger.exception(e)
-        except Exception as e:
-            logger.exception(e)
+        time.sleep(SLEEP_SECONDS)
+        schedule()
