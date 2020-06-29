@@ -20,10 +20,10 @@ logger.addHandler(ch)
 API_SERVER_BASE_URL = 'http://localhost:8081/api'
 
 # Worker API port
-API_WORKER_URL_FORMAT = 'http://{address}:8082/api'
+API_WORKER_URL_FORMAT = 'http://{address}:8082'
 
 # Wait time for next iteration (seconds)
-SLEEP_SECONDS = 20
+SLEEP_SECONDS = 5
 
 
 def get_scheduled_environments():
@@ -60,35 +60,61 @@ def send_environment_data(environment):
         address=worker.get('address')
     )
 
-    # Send enviroment data to worker
-    response = requests.post(url,data=environment)
-    response.raise_for_status()
+    try:
 
-    deployment_url = environment.get('deployment')
+        # Send enviroment data to worker
+        response = requests.post(url,data=environment)
+        response.raise_for_status()
 
-    data = {
-        'status': 'Dispatched'
-    }
+        # Resport to api serve that the deployemnt 
+        # was dispatched
+        deployment_url = environment.get('deployment')
+        deployment = {
+            'status': 'Dispatched',
+            'detail': 'successfully dispatched'
+        }
 
-    response = requests.post(deployment_url,data=data)
-    response.raise_for_status()
+        response = requests.patch(deployment_url,data=deployment)
+        response.raise_for_status()
+    except Exception as e:
+        logger.error(
+            "Worker '%s' not available, so enviroment '%s' not dispatched",
+            worker.get('address'),
+            environment.get('id')
+        )
+        # Resport to api serve that the deployemnt 
+        # was dispatched
+        deployment_url = environment.get('deployment')
+        deployment = {
+            'status': 'Failed',
+            'detail': str(e)
+        }
 
+        response = requests.patch(deployment_url,data=deployment)
+        response.raise_for_status()
 
 def dispatch():
     logger.info("Dispactchig ...")
-    environments = get_scheduled_environments()
-    for environment in environments:
-        send_environment_data(environment)
+
+    try:
+        environments = get_scheduled_environments()
+        for environment in environments:
+
+            try:
+                send_environment_data(environment)
+            except requests.exceptions.ConnectionError as e:
+                logger.exception(e)
+            except Exception as e:
+                logger.exception(e)
+
+    except Exception as e:
+        logger.warning("API SERVER no available on '%s'",API_SERVER_BASE_URL)
+
     logger.info("End dispatch...")
 
 
 if __name__ == '__main__':
     logger.info("Dispatcher started !!")
-    while True:
-        try: 
-            time.sleep(SLEEP_SECONDS)
-            dispatch()
-        except requests.exceptions.ConnectionError as e:
-            logger.exception(e)
-        except Exception as e:
-            logger.exception(e)
+    while True: 
+        time.sleep(SLEEP_SECONDS)
+        dispatch()
