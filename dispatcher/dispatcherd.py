@@ -87,7 +87,9 @@ def send_environment_data(environment):
         deployment_url = environment.get('deployment')
         deployment = {
             'status': 'Failed',
-            'detail': str(e)
+            'detail': "Worker '%s' not available, so enviroment not dispatched" % (
+                worker.get('address')
+            )
         }
 
         response = requests.patch(deployment_url,data=deployment)

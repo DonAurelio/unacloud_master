@@ -17,7 +17,7 @@ logger.addHandler(ch)
 
 
 # Base API url without the ending slash
-API_BASE_URL = 'http://localhost:8081/api'
+API_SERVER_BASE_URL = 'http://localhost:8081/api'
 
 # Wait time for next iteration (seconds)
 SLEEP_SECONDS = 5
@@ -25,7 +25,7 @@ SLEEP_SECONDS = 5
 
 def get_available_workers():
     endpoint = '/worker/workers/'
-    url = API_BASE_URL + endpoint
+    url = API_SERVER_BASE_URL + endpoint
     workers = None
 
     logger.info("Getting available workers from '%s'" % url)
@@ -43,7 +43,7 @@ def get_available_workers():
 def get_peding_environments():
     endpoint = '/environment/environments/'
     query = '?deployment__status=Pending'
-    url = API_BASE_URL + endpoint + query
+    url = API_SERVER_BASE_URL + endpoint + query
 
     environments = None
 
@@ -110,7 +110,7 @@ def report_scheduling_decision(environment,worker):
 
         data = {
             'status': 'Pending',
-            'details': 'No nodes aviable for this environment !!'
+            'detail': 'No nodes aviable for this environment !!'
         }
         response = requests.patch(url,data=data)
 
@@ -131,7 +131,8 @@ def report_scheduling_decision(environment,worker):
         url = environment.get('deployment')
 
         data = {
-            'status': 'Scheduled'
+            'status': 'Scheduled',
+            'detail': 'Successfully scheduled'
         }
         response = requests.patch(url,data=data)
 
@@ -145,17 +146,21 @@ def report_scheduling_decision(environment,worker):
 
 def schedule():
     logger.info("Scheduling...")
-    environments = get_peding_environments()
-    for environment in environments:
-        try: 
-            workers = get_available_workers()
-            worker = get_first_fit(environment,workers)
-            report_scheduling_decision(environment,worker)
-        except requests.exceptions.ConnectionError as e:
-            logger.exception(e)
-        except Exception as e:
-            logger.exception(e)
 
+    try:
+        environments = get_peding_environments()
+        for environment in environments:
+            try: 
+                workers = get_available_workers()
+                worker = get_first_fit(environment,workers)
+                report_scheduling_decision(environment,worker)
+            except requests.exceptions.ConnectionError as e:
+                logger.exception(e)
+            except Exception as e:
+                logger.exception(e)
+
+    except Exception as e:
+        logger.warning("API SERVER no available on '%s'",API_SERVER_BASE_URL)
 
     logger.info("End scheduling...")
 
