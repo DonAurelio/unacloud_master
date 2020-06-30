@@ -13,7 +13,7 @@ class EnvironmentAdmin(admin.ModelAdmin):
     )
 
     list_display = (
-        'id','provider','address','ssh_port',
+        'id','name','provider','address','ssh_port',
         'cores','memory','status',
         'last_report_date','worker'
     )

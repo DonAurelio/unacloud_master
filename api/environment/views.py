@@ -1,7 +1,10 @@
 from django.shortcuts import render
+from django.db.utils import IntegrityError
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.request import Request
 from rest_framework import views
+from rest_framework import status
 
 from environment.serializers import EnvironmentSerializer
 from environment.serializers import DeploymentSerializer
@@ -18,7 +21,6 @@ class EnvironmentViewSet(viewsets.ModelViewSet):
     serializer_class = EnvironmentSerializer
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = ['status','deployment__status','worker']
-
 
 class DeploymentViewSet(viewsets.ModelViewSet):
     queryset = Deployment.objects.all()
@@ -101,3 +103,53 @@ class ActionDeploymentStatusUpdate(views.APIView):
             action_obj.save()
 
         return Response({'message':'Done'})
+
+class EnvironmentCreate(views.APIView):
+
+    def post(self,request,format=None):
+        data = request.data
+
+        try:
+            environment = Environment(
+                name=data.get('name'),
+                provider=data.get('provider'),
+                cores=data.get('cpus'),
+                memory=data.get('memory')
+            )
+
+            environment.save()
+        except IntegrityError as e:
+            message = "An environment with name '%s' already exists !!" % data.get('name')
+            return Response({'message':message},status=status.HTTP_200_OK)
+
+        message = "environment '%s' created !!" % data.get('name')
+        return Response({'message': message},status=status.HTTP_201_CREATED)
+
+class EnvironmentAction(views.APIView):
+
+    def post(self,request,format=None):
+        data = request.data
+
+        environment_name = data.get('environment_name')
+        action_type = data.get('action')
+
+        try:
+            environment = Environment.objects.get(name=environment_name)
+            if not environment.status:
+                message = "environment '%s' is not deployed yet !!" % environment_name
+                return Response({'message':message},status=status.HTTP_200_OK)
+
+            action = Action(
+                environment=data.get('environment_name'),
+                action=data.get('action'),
+            )
+
+            action.save()
+
+        except Environment.DoesNotExist as e:
+            message = "environment '%s' does not exists !!" % environment_name
+            return Response({'message':message},status=status.HTTP_200_OK)
+
+
+        message = "action '%s' created !!" % action_type
+        return Response({'message':message},status=status.HTTP_201_CREATED)

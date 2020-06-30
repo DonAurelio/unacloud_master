@@ -23,6 +23,8 @@ from environment.views import DeploymentViewSet
 from environment.views import ActionViewSet
 from environment.views import EnviromentDeploymentStatusUpdate
 from environment.views import ActionDeploymentStatusUpdate
+from environment.views import EnvironmentCreate
+from environment.views import EnvironmentAction
 
 
 
@@ -36,8 +38,10 @@ router.register(r'environment/actions', ActionViewSet)
 
 urlpatterns = [
     path('', admin.site.urls),
-	path('api/', include(router.urls)),
+    path('api/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls')),
     path('api/environment/deployment/status_update/',EnviromentDeploymentStatusUpdate.as_view()),
-    path('api/environment/action/status_update/',ActionDeploymentStatusUpdate.as_view())
+    path('api/environment/action/status_update/',ActionDeploymentStatusUpdate.as_view()),
+    path('api/environment/create/',EnvironmentCreate.as_view()),
+    path('api/environment/action/',EnvironmentAction.as_view())
 ]

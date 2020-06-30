@@ -48,6 +48,12 @@ class Environment(models.Model):
     # Worker running the environment
     worker = models.ForeignKey(Worker,on_delete=models.CASCADE,null=True,blank=True)
 
+    def save(self, *args, **kwargs):
+        super(Environment, self).save(*args, **kwargs)
+        deployment = Deployment(environment=self)
+        deployment.save()
+
+
 
 class Deployment(models.Model):
 
