@@ -79,16 +79,17 @@ class ActionDeploymentStatusUpdate(views.APIView):
         if is_success:
             action_id = data.get('action_id')
             action_obj = Action.objects.get(id=action_id)
+            print(action_obj.action)
             if action_obj.action in Action.START:
-                action_obj.environment.status == Environment.RUNNING
+                action_obj.environment.status = Environment.RUNNING
             elif action_obj.action in Action.STOP:
-                action_obj.environment.status == Environment.OFF
+                action_obj.environment.status = Environment.OFF
             elif action_obj.action in Action.RESET:
-                action_obj.environment.status == Environment.RUNNING
+                action_obj.environment.status = Environment.RUNNING
             elif action_obj.action in Action.DELETE:
-                action_obj.environment.status == Environment.DELETED
+                action_obj.environment.status = Environment.DELETED
             else:
-                action_obj.environment.status == Environment.UNKNOWN
+                action_obj.environment.status = Environment.UNKNOWN
 
             action_obj.environment.save()
             action_obj.status = Action.SUCCESS
@@ -140,7 +141,7 @@ class EnvironmentAction(views.APIView):
                 return Response({'message':message},status=status.HTTP_200_OK)
 
             action = Action(
-                environment=data.get('environment_name'),
+                environment=environment,
                 action=data.get('action'),
             )
 

@@ -50,8 +50,14 @@ class Environment(models.Model):
 
     def save(self, *args, **kwargs):
         super(Environment, self).save(*args, **kwargs)
-        deployment = Deployment(environment=self)
-        deployment.save()
+
+        # If the enviorment already has a deployent, do not 
+        # associate it with another as it will raise and 
+        # integriti error because a deployment can be associated 
+        # only to one deployment
+        if not hasattr(self, 'deployment'):
+            deployment = Deployment(environment=self)
+            deployment.save()
 
 
 
@@ -113,7 +119,7 @@ class Action(models.Model):
     )
 
     action = models.CharField(max_length=50,choices=ACTION_CHOICES)
-    environment = models.OneToOneField(Environment,on_delete=models.CASCADE)
+    environment = models.ForeignKey(Environment,on_delete=models.CASCADE)
     status = models.CharField(max_length=50,choices=STATUS_CHOICES,default=SCHEDULED)
     detail = models.TextField(null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add=True,null=True)
