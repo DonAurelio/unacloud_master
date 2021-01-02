@@ -62,8 +62,11 @@ def get_peding_environments():
 
 
 def fits_environment_into_worker(environment,worker):
-    required_cpus = environment.get('cpus')
+    required_cpus = environment.get('cores')
     required_memory = environment.get('memory')
+
+    # print('ENVIROMENT:', environment)
+    # print('WORKER:', worker)
 
     available_cpus = worker.get('cpus')
     available_memory = worker.get('memory')

@@ -20,7 +20,7 @@ class EnvironmentViewSet(viewsets.ModelViewSet):
     queryset = Environment.objects.all()
     serializer_class = EnvironmentSerializer
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
-    filterset_fields = ['status','deployment__status','worker']
+    filterset_fields = ['name','status','deployment__status','worker']
 
 class DeploymentViewSet(viewsets.ModelViewSet):
     queryset = Deployment.objects.all()
